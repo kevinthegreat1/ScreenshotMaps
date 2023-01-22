@@ -31,9 +31,7 @@ public class Main {
             int zoom = parseZoom(reader);
             CompletableFuture<Void> saveScreenshot = CompletableFuture.completedFuture(null);
             for (Point point : new Grid(parseLine(reader, 2), parseLine(reader, 3))) {
-                driver.get("https://map.baidu.com/@" + point + "," + zoom + "z");
-                removeElements();
-                saveScreenshot = CompletableFuture.allOf(saveScreenshot, takeScreenshot(point, zoom));
+                saveScreenshot = CompletableFuture.allOf(saveScreenshot, takeScreenshotAt(point, zoom));
             }
             driver.quit();
             saveScreenshot.join();
@@ -78,6 +76,12 @@ public class Main {
             driver.quit();
             throw new IllegalArgumentException("File contains invalid number at line " + lineNumber, e);
         }
+    }
+
+    private static CompletableFuture<Void> takeScreenshotAt(Point point, int zoom) {
+        driver.get("https://map.baidu.com/@" + point + "," + zoom + "z");
+        removeElements();
+        return takeScreenshot(point, zoom);
     }
 
     public static void removeElements() {
